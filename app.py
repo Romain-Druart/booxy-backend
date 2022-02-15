@@ -1,4 +1,6 @@
+from logging import exception
 from sys import getsizeof
+import time
 import meilisearch
 
 from gutenberg.query import list_supported_metadatas
@@ -40,45 +42,69 @@ def add_rank(book_id):
             'download': 1
         }])      
  
-    return jsonify({'message': "Success"})
+    return jsonify(doc)
     
 @app.route('/api/add-book/<int:id>')
 def add_book(id):
+    #try:
     documents = []
-    
-    i = 50
+    i = 1
     e = id
     text = ""
     try: 
         text = strip_headers(load_etext(i*e)).strip()
     except:
         pass
+
     title = list(get_metadata('title', i*e))
     if len(title) > 0:
         title = title[0]
     else:
         title = "Unknown"
+
     language = list(get_metadata('language', i*e))
     if len(language) > 0:
         language = language[0]
     else:
         language = "Unknown"
+
     rights = list(get_metadata('rights', i*e))
     if len(rights) > 0:
         rights = rights[0]
     else:
         rights = "Unknown"
+
     subject = list(get_metadata('subject', i*e))
+    if len(subject) > 0:
+        subject = subject[0]
+    else:
+        subject = "Unknown"
+
+    author = list(get_metadata('author', i*e))
+    if len(author) > 0:
+        author = author[0]
+    else:
+        author = "Unknown"
 
     uri = list(get_metadata('formaturi', i*e))
     if len(uri) > 0:
         uri = uri[0]
     else:
         uri = "Unknown"
-    book = {'id': i+(e*10), 'title': title, 'language': language, 'rights': rights, 'subject': subject, 'book': text, 'cover': f'https://www.gutenberg.org/cache/epub/{i*e}/pg{i*e}.cover.medium.jpg'}
+
+    book = {'id': i+(e*10), 'title': title, 'language': language, 'rights': rights, 'subject': subject, 'author':author, 'book': text, 'cover': f'https://www.gutenberg.org/cache/epub/{i*e}/pg{i*e}.cover.medium.jpg'}
     documents.append(book)
     index = client.index('books')
-    index.add_documents_in_batches(documents,100)
+    task = index.add_documents_in_batches(documents,100)
+    while True:
+        tmp = client.get_task(task[0]["uid"])
+        if tmp["status"] == 'succeeded':
+            break
+        time.sleep(0.1)
+    # except Exception as preexception:
+    #     print(tmp)
+    #     print(preexception)
+
     return jsonify({'message': 'Success'})
 
 @app.route('/api/settings')
@@ -91,15 +117,17 @@ def settings():
         'language',
         'rights',
         'subject',
-        'cover'
+        'cover',
+        'author'
+        
     ]})
     client.index('books').update_ranking_rules([
         'words',
         'typo',
         'proximity',
-        'download:desc',
         'attribute',
         'sort',
+        'download:desc',
         'exactness',
     ])
     client.index('books').update_settings({
