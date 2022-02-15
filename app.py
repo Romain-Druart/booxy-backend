@@ -17,11 +17,12 @@ from gutenberg.query import get_metadata
 # text = strip_headers(load_etext(2701)).strip()
 # print(text)
 
-
 from flask import Flask, jsonify
-
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
+
 
 client = meilisearch.Client('http://127.0.0.1:7700')
 
