@@ -1,6 +1,7 @@
 from logging import exception
 from sys import getsizeof
 import time
+from itsdangerous import json
 import meilisearch
 
 from gutenberg.query import list_supported_metadatas
@@ -48,7 +49,12 @@ def add_rank(book_id):
 #   'filter': ['id' = f'{book_id}] })
 
     return jsonify(doc)
-    
+
+@app.route('/api/get-facets/<string:search>')
+def get_facets(search):
+    result = client.index('books').search('', {'facetsDistribution': ['author', 'language','subject']})
+    return jsonify(result['facetsDistribution'])
+
 @app.route('/api/add-book/<int:id>')
 def add_book(id):
     #try:
@@ -146,6 +152,7 @@ def settings():
         'language',
         'subject'
     ])
+    return jsonify({'message': 'success'})
 # print(list_supported_metadatas()) 
 
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
