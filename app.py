@@ -53,7 +53,15 @@ def add_rank(book_id):
 @app.route('/api/get-facets/<string:search>')
 def get_facets(search):
     result = client.index('books').search('', {'facetsDistribution': ['author', 'language','subject']})
-    return jsonify(result['facetsDistribution'])
+    facets = {'author': [],'language': [], 'subject': []}
+    if 'author' in result['facetsDistribution']:
+        for i in result['facetsDistribution']['author'].keys():
+            facets['author'].append(i)
+    for i in result['facetsDistribution']['language'].keys():
+        facets['language'].append(i)
+    for i in result['facetsDistribution']['subject'].keys():
+        facets['subject'].append(i)
+    return jsonify(facets)
 
 @app.route('/api/add-book/<int:id>')
 def add_book(id):
