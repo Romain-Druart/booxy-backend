@@ -21,6 +21,7 @@ from gutenberg.query import get_metadata
 
 from flask import Flask, jsonify
 from flask_cors import CORS
+from sqlalchemy import true
 
 app = Flask(__name__)
 CORS(app)
@@ -40,8 +41,12 @@ def add_rank(book_id):
         client.index('books').update_documents([{
             'id': book_id,
             'download': 1
-        }])      
- 
+        }])  
+
+#     if is_search:
+#         client.index('books').search('', {
+#   'filter': ['id' = f'{book_id}] })
+
     return jsonify(doc)
     
 @app.route('/api/add-book/<int:id>')
@@ -98,7 +103,7 @@ def add_book(id):
     task = index.add_documents_in_batches(documents,100)
     while True:
         tmp = client.get_task(task[0]["uid"])
-        if tmp["status"] == 'succeeded':
+        if  ["status"] == 'succeeded':
             break
         time.sleep(0.1)
     # except Exception as preexception:
@@ -136,6 +141,11 @@ def settings():
         'book',
         'subject'
     ]})
+    client.index('books').update_filterable_attributes([
+        'author',
+        'language',
+        'subject'
+    ])
 # print(list_supported_metadatas()) 
 
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
