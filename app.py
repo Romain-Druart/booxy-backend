@@ -50,8 +50,8 @@ def add_rank(book_id):
 
     return jsonify(doc)
 
-@app.route('/api/get-facets/<string:search>')
-def get_facets(search):
+@app.route('/api/get-facets')
+def get_facets():
     result = client.index('books').search('', {'facetsDistribution': ['author', 'language','subject']})
     facets = {'author': [],'language': [], 'subject': []}
     if 'author' in result['facetsDistribution']:
