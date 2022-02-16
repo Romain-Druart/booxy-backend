@@ -21,7 +21,7 @@ from gutenberg.query import get_metadata
 
 from flask import Flask, jsonify
 from flask_cors import CORS
-from sqlalchemy import true
+
 
 app = Flask(__name__)
 CORS(app)
