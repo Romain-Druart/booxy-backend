@@ -117,7 +117,7 @@ def add_book(id):
     task = index.add_documents_in_batches(documents,100)
     while True:
         tmp = client.get_task(task[0]["uid"])
-        if  ["status"] == 'succeeded':
+        if  tmp["status"] == 'succeeded':
             break
         time.sleep(0.1)
     # except Exception as preexception:
