@@ -111,13 +111,13 @@ def add_book(id):
     else:
         uri = "Unknown"
 
-    book = {'id': i+(e*10), 'title': title, 'language': language, 'rights': rights, 'subject': subject, 'author':author, 'book': text, 'cover': f'https://www.gutenberg.org/cache/epub/{i*e}/pg{i*e}.cover.medium.jpg'}
+    book = {'id': i*e, 'title': title, 'language': language, 'rights': rights, 'subject': subject, 'author':author, 'book': text, 'cover': f'https://www.gutenberg.org/cache/epub/{i*e}/pg{i*e}.cover.medium.jpg'}
     documents.append(book)
     index = client.index('books')
     task = index.add_documents_in_batches(documents,100)
     while True:
         tmp = client.get_task(task[0]["uid"])
-        if  tmp["status"] == 'succeeded':
+        if tmp["status"] == 'succeeded':
             break
         time.sleep(0.1)
     # except Exception as preexception:
@@ -137,7 +137,8 @@ def settings():
         'rights',
         'subject',
         'cover',
-        'author'
+        'author',
+        'book'
         
     ]})
     client.index('books').update_ranking_rules([
